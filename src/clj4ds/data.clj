@@ -280,3 +280,28 @@
        (i/$ "Electorate")
        c/qq-plot
        i/view))
+
+(defn ex-1-27
+  []
+  (->> :uk-scrubbed
+       load-data
+       (i/$where #(not-any? number? [(% "Con") (% "LD")]))
+       (i/$ [:Region :Electorate :Con :LD])))
+
+(defmethod load-data :uk-victors
+  [_]
+  (->> :uk-scrubbed
+       load-data
+       (i/$where {:Con {:$fn number?}
+                  :LD {:$fn number?}})
+       (i/add-derived-column :victors [:Con :LD] +)
+       (i/add-derived-column :victors-share [:victors :Votes] /)
+       (i/add-derived-column :turnout [:Votes :Electorate] /)))
+
+(defn ex-1-28
+  []
+  (->> :uk-victors
+       load-data
+       (i/$ :victors-share)
+       c/qq-plot
+       i/view))
